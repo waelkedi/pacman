@@ -6,6 +6,11 @@ import model.Map;
 import model.Position;
 import model.pacman.Pacman;
 
+import java.util.List;
+
+import static java.util.Collections.shuffle;
+
+
 public class Frightened implements Behavior {
 
     private Ghost ghost;
@@ -20,7 +25,7 @@ public class Frightened implements Behavior {
 
     public void handle() {
         time -= 1 / Game.getInstance().getRefreshRate();
-        if (time <= 0) ghost.behavior = new Chase(ghost);
+        if (time <= 0) ghost.resetBehavior();
     }
 
     @Override
@@ -28,16 +33,23 @@ public class Frightened implements Behavior {
         pacman.eat(ghost);
     }
 
+    public Map.Direction nextDirection(){
+
+        List<Map.Direction> directions = ghost.movablesDirections();
+        shuffle(directions);
+
+        return directions.get(0);
+
+    }
+
     @Override
     public Position nextPosition() {
-        Position newPosition = Map.getPositionByDirectionIfMovableTo(ghost.getPosition(), ghost.getHeadingTo());
 
-        if (newPosition == null || (Map.freeNeighbourFields(ghost.getPosition()) > 1 && Math.round(Math.random()) == 1)) {
-            Map.Direction guessedDirection = Map.Direction.guessDirection(ghost.getPosition());
+            Map.Direction guessedDirection = nextDirection();
+
             ghost.setHeadingTo(guessedDirection);
-            newPosition = Map.getPositionByDirectionIfMovableTo(ghost.getPosition(), guessedDirection);
+            Position newPosition = Map.getPositionByDirectionIfMovableTo(ghost.getPosition(), guessedDirection);
             ghost.move(newPosition);
-        }
 
         return newPosition;
     }
