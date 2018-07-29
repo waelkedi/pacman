@@ -10,9 +10,6 @@
 
 package model;
 
-import model.Ghost.Ghost;
-import model.pacman.Pacman;
-
 /**
  * A coin represents the object our Pacman has to eat in order to be able to hunt the ghosts.
  *
@@ -23,8 +20,6 @@ import model.pacman.Pacman;
 public class Coin extends StaticTarget implements Scorable {
 
     public static final double PACMAN_AINT_EATER = -1;
-
-    private static int nbrCoin = 4;
 
     private static double activeSeconds = PACMAN_AINT_EATER;
 
@@ -45,8 +40,7 @@ public class Coin extends StaticTarget implements Scorable {
     }
 
     public Coin(Position pos) {
-        super(pos);
-        this.state = State.AVAILABLE;
+        super(pos, State.AVAILABLE);
     }
 
     /**
@@ -63,16 +57,20 @@ public class Coin extends StaticTarget implements Scorable {
         }
 
         if (state == State.EATEN) {
+
+            this.state = state;
+
+            int nbrCoin = Game.getInstance().nbrOfActiveCoin();
+
             setVisible(false);
-            if (nbrCoin <= 2)
+            if (nbrCoin < 2)
                 Game.getInstance().frightenedGhost(7.);
             else
                 Game.getInstance().frightenedGhost(5.);
 
-            nbrCoin --;
-            this.getPosition().remove(this);
 
         } else if (state == State.AVAILABLE) {
+            this.state = state;
             setVisible(true);
         }
 
@@ -107,7 +105,6 @@ public class Coin extends StaticTarget implements Scorable {
     public void gotEaten() {
         if (this.state == State.AVAILABLE)
             this.changeState(State.EATEN);
-        getPosition().remove(this);
     }
 
     @Override

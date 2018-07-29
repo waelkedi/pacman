@@ -14,7 +14,6 @@ import model.fruit.Plum;
 import model.fruit.Strawberry;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -241,8 +240,8 @@ public class Map {
 
         placeholderPositions.add(
                 positionContainer.getRange(
-                        positionContainer.get(5, 3),
-                        positionContainer.get(5, 4)
+                        positionContainer.get(4, 3),
+                        positionContainer.get(4, 4)
                 )
         );
 
@@ -307,6 +306,7 @@ public class Map {
         // --------- COINS ---------
         CoinContainer cC = Game.getInstance().getCoinContainer();
         PointContainer pC = Game.getInstance().getPointContainer();
+        List<StaticTarget> fC = Game.getInstance().getFruitContainer();
 
         cC.removeAll();
         pC.removeAll();
@@ -322,10 +322,10 @@ public class Map {
         cC.add(new Coin(positionContainer.get(18, 8)));
 
 
-        new Perry(positionContainer.get(1,6));
-        new Plum(positionContainer.get(18,6));
-        new Strawberry(positionContainer.get(13,1));
-        new Apple(positionContainer.get(6,1));
+        fC.add(new Perry(positionContainer.get(1,6)));
+        fC.add(new Plum(positionContainer.get(18,6)));
+        fC.add(new Strawberry(positionContainer.get(13,1)));
+        fC.add(new Apple(positionContainer.get(6,1)));
 
 
 
@@ -342,6 +342,7 @@ public class Map {
 
     public void onNextLevel() {
 
+        System.out.println("onnext" + Game.getInstance().getCoinContainer().getAll().size());
 
         for(Coin c : Game.getInstance().getCoinContainer()){
             if(c.getState() == StaticTarget.State.EATEN) {
@@ -351,6 +352,12 @@ public class Map {
         for(Point p : Game.getInstance().getPointContainer()){
             if(p.getState() == StaticTarget.State.EATEN){
                 p.changeState(StaticTarget.State.AVAILABLE);
+            }
+        }
+
+        for (StaticTarget f :Game.getInstance().getFruitContainer()){
+            if(f.getState() == StaticTarget.State.EATEN){
+                f.changeState(StaticTarget.State.AVAILABLE);
             }
         }
 

@@ -11,11 +11,14 @@ package model;
 import controller.MainController;
 import model.Ghost.Ghost;
 import model.Ghost.GhostFactory;
-import model.Ghost.behavior.GhostManager;
+import model.Ghost.GhostManager;
 import model.event.Process;
 import model.event.RendererProcess;
 import model.event.Timer;
 import model.pacman.Pacman;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Game class is kind of a <i>master</i>-class, organizing all other business logic objects.
@@ -89,6 +92,8 @@ public class Game implements Process{
 
     private int playerLifes = 3;
 
+    private List<StaticTarget> fruitContainer;
+
     /**
      * Constructs a new Game object.
      */
@@ -120,11 +125,14 @@ public class Game implements Process{
         this.coinContainer = new CoinContainer();
         this.pointContainer = new PointContainer();
         this.pacmanContainer = new PacmanContainer();
+        this.fruitContainer = new ArrayList<>();
         this.level = Level.getInstance();
 
         this.eventHandlerManager = new Timer();
         this.eventHandlerManager.register(this);
         this.eventHandlerManager.register(new RendererProcess());
+
+        this.ghostManager = new GhostManager(ghostContainer);
 
     }
 
@@ -183,6 +191,8 @@ public class Game implements Process{
         return pacmanContainer;
     }
 
+    public List<StaticTarget> getFruitContainer() { return fruitContainer; }
+
     /**
      * Gets the map of the game.
      *
@@ -192,7 +202,7 @@ public class Game implements Process{
         return map;
     }
 
-    public GhostManager ghostManager;
+    private GhostManager ghostManager;
 
     /**
      * Changes the refresh rate depending on the level.
@@ -202,7 +212,7 @@ public class Game implements Process{
      */
     public void changeRefreshRate(Level l) {
         // f(x) = (x^5)^(1/7) or "The refresh rate per second is the 7th root of the level raised to 5"
-        this.refreshRate = Math.pow(Math.pow(l.getLevel(), 5), 1 / 7) + BASIC_REFRESH_RATE;
+        //this.refreshRate = Math.pow(Math.pow(l.getLevel(), 5), 1 / 7) + BASIC_REFRESH_RATE;
     }
 
     /**
@@ -238,7 +248,6 @@ public class Game implements Process{
             this.map.placeObjects();
         }
 
-        this.ghostManager = new GhostManager(ghostContainer);
         this.eventHandlerManager.startExecution();
     }
 
@@ -268,7 +277,7 @@ public class Game implements Process{
         return false;
     }
 
-    public void gameOver() {
+    private void gameOver() {
         this.isOver = true;
         Game.getInstance().getEventHandlerManager().pauseExecution();
         MainController.getInstance().getGui().onGameOver();
@@ -309,7 +318,7 @@ public class Game implements Process{
         boolean performFurtherActions;
 
         // Check whether level is completed
-        /*
+
         int pointsEaten = 0;
 
         for (Point p : pointContainer) {
@@ -320,13 +329,11 @@ public class Game implements Process{
 
         int size = getPointContainer().size();
 
-        */
+        //System.out.println(size + " " + pointsEaten);
 
-        //System.out.println(pointContainer.size());
+        performFurtherActions = (pointsEaten != size) && (!isGameOver());
 
-        performFurtherActions = (pointContainer.size() != 0) && (!isGameOver());
-
-        if (pointContainer.size() == 0) {
+        if (size == pointsEaten) {
             Level.getInstance().nextLevel();
         }
 
@@ -355,6 +362,7 @@ public class Game implements Process{
 
     public void frightenedGhost(double time){
 
+        System.out.println(time);
         ghostManager.pause(time);
 
         for (Ghost g : Game.getInstance().getGhostContainer()) {
@@ -422,6 +430,19 @@ public class Game implements Process{
 
         for (Pacman p: Game.getInstance().getPacmanContainer())
             p.replace();
+    }
+
+
+    public int nbrOfActiveCoin(){
+
+        int n = 0;
+
+        for (Coin coin: coinContainer)
+            if (coin.state == StaticTarget.State.AVAILABLE)
+                n ++;
+
+        return n;
+
     }
 
     public enum PlayerMode {

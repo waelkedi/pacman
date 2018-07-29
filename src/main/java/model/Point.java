@@ -16,7 +16,7 @@ package model;
 public class Point extends StaticTarget implements Scorable {
 
     public Point(Position pos) {
-        super(pos);
+        super(pos, State.AVAILABLE);
         this.state = State.AVAILABLE;
     }
 
@@ -29,8 +29,6 @@ public class Point extends StaticTarget implements Scorable {
     public void gotEaten() {
         if (this.state == State.AVAILABLE)
             this.changeState(State.EATEN);
-        position.remove(this);
-
     }
 
     public String toString() {

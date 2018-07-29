@@ -1,26 +1,24 @@
-package model.Ghost.behavior;
+package model.Ghost;
 
-import model.Ghost.Ghost;
 import model.GhostContainer;
 
 
 public class GhostManager {
 
-    GhostContainer ghosts;
+    private final GhostContainer ghosts;
 
-    long times[] = {7,27,34,54,59,  79,84};
+    private final long[] times = {7,27,34,54,59,  79,84};
 
-    double time = 0;
-    int index = 0;
+    private double time = 0;
+    private int index = 0;
 
-    double pause = 0;
+    private double pause = 0;
 
     public GhostManager(GhostContainer container){
 
         ghosts = container;
 
     }
-
 
     public void handle(double delta){
 
@@ -37,8 +35,6 @@ public class GhostManager {
 
                 time += delta;
                 if (time >= times[index]) {
-
-                    System.out.println("change");
                     for (Ghost g : ghosts) g.changeBehavior();
                     index++;
                 }

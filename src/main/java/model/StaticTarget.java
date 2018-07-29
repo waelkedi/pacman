@@ -24,7 +24,8 @@ public abstract class StaticTarget extends MapObject implements Target {
     }
 
 
-    public StaticTarget(Position position){
+    protected StaticTarget(Position position, State state){
+        this.state = state;
         setPosition(position);
     }
 
@@ -65,12 +66,12 @@ public abstract class StaticTarget extends MapObject implements Target {
     }
 
 
-    public void gotEaten(){
-        position.remove(this);
-    }
+    public void gotEaten(){ changeState(State.EATEN);}
 
     @Override
     public void performCollision(Pacman pacman) {
-        pacman.eat(this);
+
+        if (this.state == State.AVAILABLE)
+            pacman.eat(this);
     }
 }

@@ -8,43 +8,49 @@ import model.pacman.Pacman;
 
 import java.util.List;
 
-public class Chase implements Behavior {
+public class Dead implements Behavior{
 
     private final Ghost ghost;
+    private Position traget;
 
-    public Chase(Ghost ghost){
+    public Dead(Ghost ghost, double time){
+
         this.ghost = ghost;
+        traget = new Position(ghost.getStartPosition().getX(),1);
+
     }
 
-    public void handle(){
+    @Override
+    public void handle() {
+        if (ghost.getPosition().equals(traget))
+        ghost.replace();
     }
 
     @Override
     public void performCollisions(Pacman pacman) {
-        Game.getInstance().onPacmanGotEaten();
     }
+
 
     private Map.Direction nextDirection(){
 
-        List<Map.Direction> directions = ghost.movablesDirections();
 
-        Position ghostPosition = ghost.getPosition();
-        Position pacmanPosition = Game.getInstance().getPacmanContainer().get(0).getPosition();
+        List<Map.Direction> directions = ghost.movablesDirections();
 
 
         double min = Double.MAX_VALUE;
         Map.Direction direction = directions.get(0);
 
-        if (directions.size() > 1) {
+
+        if (directions.size() > 0) {
 
 
             for (Map.Direction tmp : directions) {
 
-                Position pos = Map.getPositionByDirectionIfMovableTo(ghostPosition, tmp);
-                double dist = pacmanPosition.calcDistance(pos);
+                Position pos = Map.getPositionByDirectionIfMovableTo(ghost.getPosition(), tmp);
+                double dist = traget.calcDistance(pos);
 
 
-                if (dist <= min) {
+                if (dist < min) {
 
                     min = dist;
                     direction = tmp;
@@ -55,6 +61,7 @@ public class Chase implements Behavior {
             }
         }
 
+
         return direction;
 
     }
@@ -63,6 +70,9 @@ public class Chase implements Behavior {
     @Override
     public Position nextPosition() {
 
+        if (ghost.getPosition().equals(traget))
+            return traget;
+
         Position newPosition ;
 
         Map.Direction guessedDirection = nextDirection();
@@ -70,12 +80,11 @@ public class Chase implements Behavior {
         newPosition = Map.getPositionByDirectionIfMovableTo(ghost.getPosition(), guessedDirection);
 
         return newPosition;
+
     }
 
     @Override
     public double getSpeed() {
-        return ghost.getBasicSpeed();
+        return (ghost.getBasicSpeed() * 4);
     }
-
-
 }
